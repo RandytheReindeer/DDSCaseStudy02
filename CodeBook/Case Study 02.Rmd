@@ -1,0 +1,543 @@
+---
+title: "DDS Case Study 2"
+author: "Randy Kim"
+date: "7/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyr)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(skimr)
+library(RColorBrewer)
+library(readxl)
+```
+
+```{r}
+# had an issue with importing the excel file so had to save the salary as a csv.
+data = read.csv("CaseStudy2-data.csv", header=TRUE)
+salary = read.csv("CaseStudy2CompSet No Salary.csv", header=TRUE)
+attrition = read.csv("CaseStudy2CompSet No Attrition.csv", header=TRUE)
+```
+
+```{r}
+sapply(data,function(x) sum(is.na(x)))
+str(data)
+skim(data)
+```
+
+```{r}
+data = subset(data, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
+data$Education = as.factor(data$Education)
+data$EnvironmentSatisfaction = as.factor(data$EnvironmentSatisfaction)
+data$JobInvolvement = as.factor(data$JobInvolvement)
+data$JobLevel = as.factor(data$JobLevel)
+data$JobSatisfaction = as.factor(data$JobSatisfaction)
+data$PerformanceRating = as.factor(data$PerformanceRating)
+data$RelationshipSatisfaction = as.factor(data$RelationshipSatisfaction)
+data$StockOptionLevel = as.factor(data$StockOptionLevel)
+data$WorkLifeBalance = as.factor(data$WorkLifeBalance)
+```
+
+```{r}
+salary = subset(salary, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
+salary$Education = as.factor(salary$Education)
+salary$EnvironmentSatisfaction = as.factor(salary$EnvironmentSatisfaction)
+salary$JobInvolvement = as.factor(salary$JobInvolvement)
+salary$JobLevel = as.factor(salary$JobLevel)
+salary$JobSatisfaction = as.factor(salary$JobSatisfaction)
+salary$PerformanceRating = as.factor(salary$PerformanceRating)
+salary$RelationshipSatisfaction = as.factor(salary$RelationshipSatisfaction)
+salary$StockOptionLevel = as.factor(salary$StockOptionLevel)
+salary$WorkLifeBalance = as.factor(salary$WorkLifeBalance)
+```
+
+```{r}
+attrition = subset(attrition, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
+attrition$Education = as.factor(attrition$Education)
+attrition$EnvironmentSatisfaction = as.factor(attrition$EnvironmentSatisfaction)
+attrition$JobInvolvement = as.factor(attrition$JobInvolvement)
+attrition$JobLevel = as.factor(attrition$JobLevel)
+attrition$JobSatisfaction = as.factor(attrition$JobSatisfaction)
+attrition$PerformanceRating = as.factor(attrition$PerformanceRating)
+attrition$RelationshipSatisfaction = as.factor(attrition$RelationshipSatisfaction)
+attrition$StockOptionLevel = as.factor(attrition$StockOptionLevel)
+attrition$WorkLifeBalance = as.factor(attrition$WorkLifeBalance)
+```
+
+# Attrition vs Education
+```{r}
+educ = data %>% count(Education,Attrition)
+tapply(educ$n, educ$Education, FUN=sum)
+educ %>% group_by(Education) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=Education,y=percent,fill=Attrition)) + geom_col(position="stack")
+```
+
+# Attrition vs Business Travel ** (22.14%)
+```{r}
+travel = data %>% count(BusinessTravel,Attrition)
+tapply(travel$n, travel$BusinessTravel, FUN=sum)
+travel %>% group_by(BusinessTravel) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=BusinessTravel,y=percent,fill=Attrition)) + geom_col(position="stack")
+spread(travel, Attrition, n) %>% mutate(sum= Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(BusinessTravel,percent)) + geom_col() + coord_flip()
+```
+
+# Attrition vs Environment Satisfaction ** (24.42%)
+```{r}
+env = data %>% count(EnvironmentSatisfaction,Attrition)
+tapply(env$n, env$EnvironmentSatisfaction, FUN=sum)
+env %>% group_by(EnvironmentSatisfaction) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=EnvironmentSatisfaction,y=percent,fill=Attrition)) + geom_col(position="stack")
+spread(env, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(EnvironmentSatisfaction,percent)) + geom_col() + coord_flip()
+```
+
+# Attrition vs Job Satisfcation ** (21.23%)
+```{r}
+sat = data %>% count(JobSatisfaction, Attrition)
+sat %>% group_by(JobSatisfaction) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=JobSatisfaction,y=percent,fill=Attrition)) + geom_col(position="stack")
+spread(sat, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobSatisfaction, percent)) + geom_col() + coord_flip()
+```
+
+# Attrition vs Relaionship Satisfcation (up) **
+```{r}
+relationship = data %>% count(RelationshipSatisfaction, Attrition)
+relationship %>% group_by(RelationshipSatisfaction) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=RelationshipSatisfaction,y=percent,fill=Attrition)) + geom_col(position="stack")
+```
+
+# Attrition vs Department
+```{r}
+dep = data %>% count(Department, Attrition)
+dep %>% group_by(Department) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=Department,y=percent,fill=Attrition)) + geom_col(position="stack")
+spread(dep, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(Department, percent)) + geom_col() + coord_flip()
+```
+
+# Attrition vs Job Role (Sales Department has the highest attrition rate)***
+```{r}
+role = data %>% count(JobRole, Attrition)
+role %>% group_by(JobRole) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=JobRole,y=percent,fill=Attrition)) + geom_col(position="stack") + coord_flip()
+spread(role, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobRole, percent,fill=JobRole)) + geom_col() + coord_flip()
+
+dep_role = data %>% count(JobRole, Department, Attrition)
+spread(dep_role, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobRole, percent, fill = Department)) + geom_col() + coord_flip()
+
+# Job involvement
+role_inv = data %>% count(JobRole, JobInvolvement, Attrition)
+role_inv %>% ggplot(aes(JobRole, n, fill = Attrition)) + geom_col() + coord_flip()
+
+spread(role_inv, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobRole, percent, fill = JobInvolvement)) + geom_col() + coord_flip()
+```
+
+# Attrition vs Distance from Home
+```{r}
+home = subset(data, select = c(DistanceFromHome, Attrition))
+home = home %>% mutate(distance = cut(DistanceFromHome, breaks = c(0,7,14,29),
+                       labels=c("Short", "Medium", "Long")))
+homedistance = home %>% count(distance, Attrition)
+spread(homedistance, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>% 
+  ggplot(aes(distance,percent,fill = "Yes")) + geom_col()
+```
+
+# Attrition vs Age
+```{r}
+age = data %>% count(Age, Attrition)
+spread(age, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(Age,percent)) + geom_point() + geom_smooth()
+```
+
+# Attrition vs Working Years with Age
+```{r}
+years = data %>% count(TotalWorkingYears, Attrition)
+spread(years, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(TotalWorkingYears,percent)) + geom_point() + geom_smooth()
+```
+
+# Attrition vs Job Involvement *** (46.81%)
+```{r}
+job_inv = data %>% count(JobInvolvement, Attrition)
+job_inv %>% group_by(JobInvolvement) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=JobInvolvement,y=percent,fill=Attrition)) + geom_col(position = "stack")
+spread(job_inv, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobInvolvement,percent)) + geom_col()
+```
+
+# Attrition vs Job Level ** (26.14%)
+```{r}
+job_level = data %>% count(JobLevel, Attrition)
+job_level%>% group_by(JobLevel) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=JobLevel,y=percent,fill=Attrition)) + geom_col(position = "stack")
+spread(job_level, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobLevel,percent)) + geom_col()
+```
+
+
+# Attrition vs Monthly Income
+```{r}
+income = data %>% count(MonthlyIncome, Attrition)
+income %>% group_by(MonthlyIncome) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=MonthlyIncome,y=percent)) + geom_point(position = "jitter",aes(colour = factor(Attrition)))
+spread(income, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(MonthlyIncome,percent)) + geom_point()
+```
+
+# Attrition vs Over Time *** (31.74%)
+```{r}
+overtime = data %>% count(OverTime, Attrition)
+overtime %>% group_by(OverTime) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=OverTime,y=percent,fill = Attrition)) + geom_col()
+spread(overtime, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(OverTime,percent)) + geom_col()
+```
+
+# Attrition vs Performance Rating
+```{r}
+performance = data %>% count(PerformanceRating, Attrition)
+performance %>% group_by(PerformanceRating) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=PerformanceRating,y=percent,fill = Attrition)) + geom_col()
+```
+
+# Attrition vs Work Life Balance *** (35.41%)
+```{r}
+life = data %>% count(WorkLifeBalance, Attrition)
+life %>% group_by(WorkLifeBalance) %>% mutate(percent = n/sum(n) * 100) %>%
+  ggplot(aes(x=WorkLifeBalance,y=percent,fill=Attrition)) + geom_col()
+spread(life, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(WorkLifeBalance,percent)) + geom_col()
+```
+
+
+# kNN model with Job Involvement, Work Life Balance, Environment Satisfaction, Job Level
+## Accuracy : 83.8%
+## Sensitivity : 84.04%
+## Specificity : NA
+```{r}
+iterations = 100
+splitPerc = 0.7
+numks = 50
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSens = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
+
+for(i in 1:iterations){
+  set.seed(i)
+  trainIndices = sample(1:dim(data)[1],round(splitPerc * dim(data)[1]))
+  train = data[trainIndices,]
+  test = data[-trainIndices,]
+  for(j in 1:numks)
+  {
+    classifications = knn(train[,c("JobInvolvement","WorkLifeBalance","EnvironmentSatisfaction","JobLevel")],
+                        test[,c("JobInvolvement","WorkLifeBalance","EnvironmentSatisfaction","JobLevel")],
+                        as.factor(train$Attrition), 
+                        prob = TRUE, 
+                        k = j)
+    CM = confusionMatrix(table(as.factor(test$Attrition),classifications))
+    masterAcc[i,j] = CM$overall[1]
+    masterSens[i,j] = CM$byClass[1]
+    masterSpec[i,j] = CM$byClass[2]
+  }
+}
+
+CM
+mean(masterAcc)
+mean(masterSens)
+mean(masterSpec)
+```
+
+# kNN model with Job Involvement, Work Life Balance, Environment Satisfaction
+## Accuracy : 83.8%
+## Sensitivity : 84.0%
+## Specificity : NA
+```{r}
+iterations = 100
+splitPerc = 0.7
+numks = 50
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSens = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
+
+for(i in 1:iterations){
+  set.seed(i)
+  trainIndices = sample(1:dim(data)[1],round(splitPerc * dim(data)[1]))
+  train = data[trainIndices,]
+  test = data[-trainIndices,]
+  for(j in 1:numks)
+  {
+    classifications = knn(train[,c("JobInvolvement","WorkLifeBalance","EnvironmentSatisfaction")],
+                        test[,c("JobInvolvement","WorkLifeBalance","EnvironmentSatisfaction")],
+                        as.factor(train$Attrition), 
+                        prob = TRUE, 
+                        k = j)
+    CM = confusionMatrix(table(as.factor(test$Attrition),classifications))
+    masterAcc[i,j] = CM$overall[1]
+    masterSens[i,j] = CM$byClass[1]
+    masterSpec[i,j] = CM$byClass[2]
+  }
+}
+
+CM
+mean(masterAcc)
+mean(masterSens)
+mean(masterSpec)
+```
+
+#Naive Bayes Test
+```{r}
+iteartions = 100
+splitPerc = 0.7
+numks = 50
+
+trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
+train = data[trainIndices,]
+test = data[-trainIndices,]
+model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
+                           predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])))
+CM
+
+
+trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
+train = data[trainIndices,]
+test = data[-trainIndices,]
+model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
+                           predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime")])))
+CM
+
+trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
+train = data[trainIndices,]
+test = data[-trainIndices,]
+model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","Age")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
+                           predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","Age")])))
+CM
+
+
+```
+
+# Bayes Model with Job Involvement, Work Life Balance, Over Time, Job Role
+## Accuracy : 85.79%
+## Sensitivity : 86.76%
+## Specificity : 69.0%
+```{r}
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSens = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
+
+iteartions = 100
+splitPerc = 0.7
+numks = 50
+
+for(j in 1:iterations)
+{
+  set.seed(j)
+  trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
+  train = data[trainIndices,]
+  test = data[-trainIndices,]
+  
+  for(i in 1:numks)
+  {
+    model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+    CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
+                               predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])))
+    masterAcc[j,i] = CM$overall[1]
+    masterSens[j,i] = CM$byClass[1]
+    masterSpec[j,i] = CM$byClass[2]
+  }
+}
+
+CM
+mean(masterAcc)
+mean(masterSens)
+mean(masterSpec)
+
+```
+
+# Bayes model with Job Involvement, Work Life Balance, Over Time
+## Accuracy : 84.48%
+## Sensitivity : 85.31%
+## Specificity : 59.06%
+```{r}
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSens = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
+
+iteartions = 100
+splitPerc = 0.7
+numks = 50
+
+for(j in 1:iterations)
+{
+  set.seed(j)
+  trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
+  train = data[trainIndices,]
+  test = data[-trainIndices,]
+  
+  for(i in 1:numks)
+  {
+    model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+    CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
+                               predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime")])))
+    masterAcc[j,i] = CM$overall[1]
+    masterSens[j,i] = CM$byClass[1]
+    masterSpec[j,i] = CM$byClass[2]
+  }
+}
+
+CM
+mean(masterAcc)
+mean(masterSens)
+mean(masterSpec)
+
+```
+
+#Final
+# Bayes Model with Job Involvement, Work Life Balance, Over Time, Job Role
+## Accuracy : 85.79%
+## Sensitivity : 86.76%
+## Specificity : 69.0%
+```{r}
+model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
+                   factor(train$Attrition,labels = c("No","Yes")))
+attrition$Attrition = predict(model,attrition[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])
+output = attrition %>% select(ID, Attrition)
+write.csv(output, file="Case2PredictionsKim Attrition.csv",row.names = FALSE)
+```
+
+```{r}
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+data %>% select_if(is.numeric) %>% cor() %>%
+  corrplot(method="color", 
+           col=col(200), 
+           number.digits=2,
+           number.cex=0.5, 
+           type="upper", 
+           order="hclust", 
+           addCoef.col = "black",
+           tl.col="black", 
+           tl.srt=45,
+           sig.level = 0.01, 
+           insig = "blank", 
+           diag=FALSE 
+         )
+
+data %>% select(Age, MonthlyIncome) %>% ggpairs() #.484
+data %>% select(YearsInCurrentRole, MonthlyIncome) %>% ggpairs() #.362
+data %>% select(YearsAtCompany, MonthlyIncome) %>% ggpairs() # .491
+data %>% select(YearsWithCurrManager, MonthlyIncome) %>% ggpairs() # .328
+data %>% select(YearsSinceLastPromotion, MonthlyIncome) %>% ggpairs() # .316
+data %>% select(TotalWorkingYears, MonthlyIncome) %>% ggpairs() #.779
+
+data %>% select(Department,Education,MonthlyIncome) %>% ggpairs()
+data %>% select(JobInvolvement,JobLevel,MonthlyIncome) %>% ggpairs()
+data %>% select(JobRole,PerformanceRating,MonthlyIncome) %>% ggpairs()
+```
+# Total Working Years, Years at Company, Age, Years in Current Role, Job Level, Education(?)
+```{r}
+data %>% ggplot(aes(TotalWorkingYears, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(YearsAtCompany,MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(Age, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(YearsInCurrentRole, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(JobLevel, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(Education, MonthlyIncome)) + geom_point() + geom_smooth()
+
+# totalworkingyears
+# Years at company
+# age
+# JobLevel
+
+```
+
+```{r}
+trainIndices = sample(seq(1,dim(data)[1]),round(.7*dim(data)[1]), replace=FALSE)
+train = data[trainIndices,]
+test = data[-trainIndices,]
+
+# model 1
+fit = lm(MonthlyIncome ~ TotalWorkingYears, data = train)
+summary(fit)
+confint(fit)
+
+preds = predict(fit, newdata = test)
+MSPE = mean((test$MonthlyIncome - preds)^2)
+sqrt(MSPE)
+# RMSE = 2807.818
+
+# model 2
+fit2 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany, data = train)
+summary(fit2)
+confint(fit2)
+
+preds = predict(fit2, newdata = test)
+MSPE = mean((test$MonthlyIncome - preds)^2)
+sqrt(MSPE)
+# RMSE = 2807.682
+
+# model 3
+fit3 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel, data = train)
+summary(fit3)
+confint(fit3)
+
+preds = predict(fit3, newdata = test)
+MSPE = mean((test$MonthlyIncome - preds)^2)
+sqrt(MSPE)
+# RMSE = 978.4626
+
+# model 4
+fit4 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel + Age, data = train)
+summary(fit4)
+confint(fit4)
+
+preds = predict(fit4, newdata = test)
+MSPE = mean((test$MonthlyIncome - preds)^2)
+sqrt(MSPE)
+# RMSE = 978.5991
+```
+
+# Predicted Salaries
+```{r}
+model = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel, data = train)
+salary$MonthlyIncome = predict(model, newdata = salary)
+output = salary %>% select(ID, MonthlyIncome)
+write.csv(output, file = "Case2PredictionsKim Salary.csv", row.names = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
