@@ -16,6 +16,11 @@ library(ggthemes)
 library(skimr)
 library(RColorBrewer)
 library(readxl)
+library(ggsci)
+library(GGally)
+library(e1071)
+library(class)
+library(caret)
 ```
 
 ```{r}
@@ -84,7 +89,7 @@ travel = data %>% count(BusinessTravel,Attrition)
 tapply(travel$n, travel$BusinessTravel, FUN=sum)
 travel %>% group_by(BusinessTravel) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=BusinessTravel,y=percent,fill=Attrition)) + geom_col(position="stack")
-spread(travel, Attrition, n) %>% mutate(sum= Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+travel %>% spread(Attrition, n) %>% mutate(sum= Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(BusinessTravel,percent)) + geom_col() + coord_flip()
 ```
 
@@ -94,7 +99,7 @@ env = data %>% count(EnvironmentSatisfaction,Attrition)
 tapply(env$n, env$EnvironmentSatisfaction, FUN=sum)
 env %>% group_by(EnvironmentSatisfaction) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=EnvironmentSatisfaction,y=percent,fill=Attrition)) + geom_col(position="stack")
-spread(env, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+env %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(EnvironmentSatisfaction,percent)) + geom_col() + coord_flip()
 ```
 
@@ -103,7 +108,7 @@ spread(env, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum 
 sat = data %>% count(JobSatisfaction, Attrition)
 sat %>% group_by(JobSatisfaction) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=JobSatisfaction,y=percent,fill=Attrition)) + geom_col(position="stack")
-spread(sat, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+sat %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(JobSatisfaction, percent)) + geom_col() + coord_flip()
 ```
 
@@ -119,7 +124,7 @@ relationship %>% group_by(RelationshipSatisfaction) %>% mutate(percent = n/sum(n
 dep = data %>% count(Department, Attrition)
 dep %>% group_by(Department) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=Department,y=percent,fill=Attrition)) + geom_col(position="stack")
-spread(dep, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+dep %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(Department, percent)) + geom_col() + coord_flip()
 ```
 
@@ -128,19 +133,21 @@ spread(dep, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/su
 role = data %>% count(JobRole, Attrition)
 role %>% group_by(JobRole) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=JobRole,y=percent,fill=Attrition)) + geom_col(position="stack") + coord_flip()
-spread(role, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(JobRole, percent,fill=JobRole)) + geom_col() + coord_flip()
+role %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobRole, percent,fill=JobRole)) + geom_col() + coord_flip() + xlab("") + ylab("Percent (%)")
 
 dep_role = data %>% count(JobRole, Department, Attrition)
-spread(dep_role, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(JobRole, percent, fill = Department)) + geom_col() + coord_flip()
+dep_role %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobRole, percent, fill = Department)) + geom_col() + coord_flip() + xlab("") + ylab("Rating (%)")
 
 # Job involvement
 role_inv = data %>% count(JobRole, JobInvolvement, Attrition)
 role_inv %>% ggplot(aes(JobRole, n, fill = Attrition)) + geom_col() + coord_flip()
 
-spread(role_inv, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
+role_inv %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(JobRole, percent, fill = JobInvolvement)) + geom_col() + coord_flip()
+
+data %>% select(JobInvolvement, JobRole) %>% ggpairs()
 ```
 
 # Attrition vs Distance from Home
@@ -149,21 +156,52 @@ home = subset(data, select = c(DistanceFromHome, Attrition))
 home = home %>% mutate(distance = cut(DistanceFromHome, breaks = c(0,7,14,29),
                        labels=c("Short", "Medium", "Long")))
 homedistance = home %>% count(distance, Attrition)
-spread(homedistance, Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>% 
+homedistance %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(percent = Yes/sum * 100) %>% 
   ggplot(aes(distance,percent,fill = "Yes")) + geom_col()
 ```
 
 # Attrition vs Age
 ```{r}
 age = data %>% count(Age, Attrition)
-spread(age, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+age %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(Age,percent)) + geom_point() + geom_smooth()
 ```
 
-# Attrition vs Working Years with Age
+# Monthly Income vs Age with Attrition == "Yes"
+```{r}
+data %>% select(Attrition, MonthlyIncome, Age, Department) %>% filter(Attrition == "Yes") %>% 
+  ggplot(aes(x=Age, y=MonthlyIncome)) + 
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = median(data$MonthlyIncome), fill = "Median Monthly Income")) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = median(data$MonthlyIncome), ymax = mean(data$MonthlyIncome), fill = "Mean Monthly Income")) +
+  geom_rect(aes(xmin = 18, xmax = 35, ymin = -Inf, ymax = median(data$MonthlyIncome), fill = "Age between 18 and 35")) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = mean(data$MonthlyIncome), ymax = Inf, fill = "Above Mean Monthly Income")) +  scale_fill_brewer(palette = "Pastel1", name = "Scale") +
+  geom_point(position="jitter",aes(color = Department)) +
+  ggtitle("Monthly Income vs Age with Attrition = Yes") +
+  xlab("Year") + ylab("Income ($)") + theme_bw() +
+  geom_hline(aes(yintercept = mean(data$MonthlyIncome), linetype = "Mean Income ($6390,26)"),size = 0.75, colour = "red") +
+  geom_hline(aes(yintercept = median(data$MonthlyIncome), linetype = "Median Income ($4945.5)"),size = 0.75, color = "blue") +
+  scale_linetype_manual(name = "", values = c(2,2), guide = guide_legend(override.aes = list(color = c("red","blue"))))
+
+data %>% select(Attrition, MonthlyIncome, Age) %>% 
+  ggplot(aes(x=Age, y=MonthlyIncome)) + 
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = median(data$MonthlyIncome), fill = "Median Monthly Income")) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = median(data$MonthlyIncome), ymax = mean(data$MonthlyIncome), fill = "Mean Monthly Income")) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = mean(data$MonthlyIncome), ymax = Inf, fill = "Above Mean Monthly Income")) +
+  scale_fill_brewer(palette = "Pastel1", name = "Scale") +
+  geom_point(position="jitter",aes(color = Attrition)) +
+  ggtitle("Monthly Income vs Age with Attrition") +
+  xlab("Year") + ylab("Income ($)") + theme_bw() +
+  geom_hline(aes(yintercept = mean(data$MonthlyIncome), linetype = "Mean Income ($6390,26)"),size = 0.75, colour = "red") +
+  geom_hline(aes(yintercept = median(data$MonthlyIncome), linetype = "Median Income ($4945.5)"),size = 0.75, color = "blue") +
+  scale_linetype_manual(name = "", values = c(2,2), guide = guide_legend(override.aes = list(color = c("red","blue"))))
+
+```
+
+
+# Attrition vs Working Years
 ```{r}
 years = data %>% count(TotalWorkingYears, Attrition)
-spread(years, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+years %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(TotalWorkingYears,percent)) + geom_point() + geom_smooth()
 ```
 
@@ -172,8 +210,9 @@ spread(years, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/su
 job_inv = data %>% count(JobInvolvement, Attrition)
 job_inv %>% group_by(JobInvolvement) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=JobInvolvement,y=percent,fill=Attrition)) + geom_col(position = "stack")
-spread(job_inv, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(JobInvolvement,percent)) + geom_col()
+job_inv %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(JobInvolvement,percent)) + geom_col(fill="darkblue") + ggtitle("Attrition vs Job Involvement") +
+  xlab("Job Involvement Rating") + ylab("Rating (%)")
 ```
 
 # Attrition vs Job Level ** (26.14%)
@@ -181,7 +220,7 @@ spread(job_inv, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/
 job_level = data %>% count(JobLevel, Attrition)
 job_level%>% group_by(JobLevel) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=JobLevel,y=percent,fill=Attrition)) + geom_col(position = "stack")
-spread(job_level, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+job_level %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(JobLevel,percent)) + geom_col()
 ```
 
@@ -191,7 +230,7 @@ spread(job_level, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Ye
 income = data %>% count(MonthlyIncome, Attrition)
 income %>% group_by(MonthlyIncome) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=MonthlyIncome,y=percent)) + geom_point(position = "jitter",aes(colour = factor(Attrition)))
-spread(income, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+income %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
   ggplot(aes(MonthlyIncome,percent)) + geom_point()
 ```
 
@@ -200,8 +239,9 @@ spread(income, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/s
 overtime = data %>% count(OverTime, Attrition)
 overtime %>% group_by(OverTime) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=OverTime,y=percent,fill = Attrition)) + geom_col()
-spread(overtime, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(OverTime,percent)) + geom_col()
+overtime %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(OverTime,percent)) + geom_col(fill="darkblue") + ggtitle("Attrition vs Over Time") +
+  xlab("") + ylab("")
 ```
 
 # Attrition vs Performance Rating
@@ -216,8 +256,9 @@ performance %>% group_by(PerformanceRating) %>% mutate(percent = n/sum(n) * 100)
 life = data %>% count(WorkLifeBalance, Attrition)
 life %>% group_by(WorkLifeBalance) %>% mutate(percent = n/sum(n) * 100) %>%
   ggplot(aes(x=WorkLifeBalance,y=percent,fill=Attrition)) + geom_col()
-spread(life, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(WorkLifeBalance,percent)) + geom_col()
+life %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
+  ggplot(aes(WorkLifeBalance,percent)) + geom_col(fill="darkblue") + ggtitle("Attrition vs Work Life Balance") +
+  xlab("Work Life Balance Rating") + ylab("Rating (%)")
 ```
 
 
@@ -229,6 +270,7 @@ spread(life, Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum
 iterations = 100
 splitPerc = 0.7
 numks = 50
+set.seed(7)
 
 masterAcc = matrix(nrow = iterations, ncol = numks)
 masterSens = matrix(nrow = iterations, ncol = numks)
@@ -267,6 +309,7 @@ mean(masterSpec)
 iterations = 100
 splitPerc = 0.7
 numks = 50
+set.seed(7)
 
 masterAcc = matrix(nrow = iterations, ncol = numks)
 masterSens = matrix(nrow = iterations, ncol = numks)
@@ -339,13 +382,13 @@ CM
 ## Sensitivity : 86.76%
 ## Specificity : 69.0%
 ```{r}
-masterAcc = matrix(nrow = iterations, ncol = numks)
-masterSens = matrix(nrow = iterations, ncol = numks)
-masterSpec = matrix(nrow = iterations, ncol = numks)
-
 iteartions = 100
 splitPerc = 0.7
 numks = 50
+
+masterAcc = matrix(nrow = iterations, ncol = numks)
+masterSens = matrix(nrow = iterations, ncol = numks)
+masterSpec = matrix(nrow = iterations, ncol = numks)
 
 for(j in 1:iterations)
 {
@@ -455,11 +498,15 @@ data %>% select(JobRole,PerformanceRating,MonthlyIncome) %>% ggpairs()
 ```
 # Total Working Years, Years at Company, Age, Years in Current Role, Job Level, Education(?)
 ```{r}
-data %>% ggplot(aes(TotalWorkingYears, MonthlyIncome)) + geom_point() + geom_smooth()
-data %>% ggplot(aes(YearsAtCompany,MonthlyIncome)) + geom_point() + geom_smooth()
-data %>% ggplot(aes(Age, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(TotalWorkingYears, MonthlyIncome)) + geom_point() + geom_smooth() +
+  ggtitle("Total Working Years vs Monthly Income") + xlab("Years") + ylab("Income ($)")
+data %>% ggplot(aes(YearsAtCompany,MonthlyIncome)) + geom_point() + geom_smooth() +
+  ggtitle("Years At Compnay vs Monthly Income") + xlab("Years") + ylab("Income ($)")
+data %>% ggplot(aes(Age, MonthlyIncome)) + geom_point() + geom_smooth() +
+  ggtitle("Age vs Monthly Income") + xlab("Years") + ylab("Income ($)")
 data %>% ggplot(aes(YearsInCurrentRole, MonthlyIncome)) + geom_point() + geom_smooth()
-data %>% ggplot(aes(JobLevel, MonthlyIncome)) + geom_point() + geom_smooth()
+data %>% ggplot(aes(JobLevel, MonthlyIncome)) + geom_point() + geom_smooth() +
+  ggtitle("Job Level vs Monthly Income") + xlab("Job Level") + ylab("Income ($)")
 data %>% ggplot(aes(Education, MonthlyIncome)) + geom_point() + geom_smooth()
 
 # totalworkingyears
@@ -512,7 +559,37 @@ confint(fit4)
 preds = predict(fit4, newdata = test)
 MSPE = mean((test$MonthlyIncome - preds)^2)
 sqrt(MSPE)
-# RMSE = 978.5991
+
+
+
+iteartions = 20
+splitPerc = 0.7
+numks = 10
+set.seed(7)
+
+masterRMSE = matrix(nrow = iterations, ncol = numks)
+
+
+for(j in 1:iterations)
+{
+  set.seed(j)
+  trainIndices = sample(seq(1,dim(data)[1]),round(.7*dim(data)[1]), replace=FALSE)
+  train = data[trainIndices,]
+  test = data[-trainIndices,]
+  
+  for(i in 1:numks)
+  {
+    fit4 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel + Age, data = train)
+    preds = predict(fit4, newdata = test)
+    MSPE = mean((test$MonthlyIncome - preds)^2)
+    masterRMSE[j,i] = sqrt(MSPE)
+  }
+}
+
+masterRMSE
+mean(masterRMSE)
+#1017.168
+
 ```
 
 # Predicted Salaries
