@@ -16,6 +16,10 @@
 * [Case Study 02](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/CodeBook/Case%20Study%2002.Rmd) - Rmakrdown file with detailed analysis
 * [Case Study 02:Knit HTML]() - HTML file
 
+### Final Predictions
+* [Case2PredictionsKim Salary.csv](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/Predictions/Case2PredictionsKim%20Salary.csv) - Final Prediction for Salary
+* [Case2PredictionsKim Attrition.csv](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/Predictions/Case2PredictionsKim%20Attrition.csv) - Final Prediction for Attrition
+
 ### Power Point
 * [Case Study 02 Power Point]()
 
