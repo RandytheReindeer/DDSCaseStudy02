@@ -13,7 +13,7 @@
 * [CaseStudy2CompSet No Salary.csv](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/Data/CaseStudy2CompSet%20No%20Salary.csv): Complete data set without salary
 
 ### CodeBook
-* [Case Study 02]() - Rmakrdown file with detailed analysis
+* [Case Study 02](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/CodeBook/Case%20Study%2002.Rmd) - Rmakrdown file with detailed analysis
 * [Case Study 02:Knit HTML]() - HTML file
 
 ### Power Point
