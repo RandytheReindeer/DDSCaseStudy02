@@ -14,7 +14,7 @@
 
 ### CodeBook
 * [Case Study 02](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/CodeBook/Case%20Study%2002.Rmd) - Rmakrdown file with detailed analysis
-* [Case Study 02:Knit HTML]() - HTML file
+* [Case Study 02:Knit HTML](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/CodeBook/Case-Study-02.html) - HTML file
 
 ### Final Predictions
 * [Case2PredictionsKim Salary.csv](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/Predictions/Case2PredictionsKim%20Salary.csv) - Final Prediction for Salary
