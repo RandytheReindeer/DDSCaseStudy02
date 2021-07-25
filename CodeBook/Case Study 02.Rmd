@@ -21,6 +21,7 @@ library(GGally)
 library(e1071)
 library(class)
 library(caret)
+library(corrplot)
 ```
 
 ```{r}
@@ -47,32 +48,6 @@ data$PerformanceRating = as.factor(data$PerformanceRating)
 data$RelationshipSatisfaction = as.factor(data$RelationshipSatisfaction)
 data$StockOptionLevel = as.factor(data$StockOptionLevel)
 data$WorkLifeBalance = as.factor(data$WorkLifeBalance)
-```
-
-```{r}
-salary = subset(salary, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
-salary$Education = as.factor(salary$Education)
-salary$EnvironmentSatisfaction = as.factor(salary$EnvironmentSatisfaction)
-salary$JobInvolvement = as.factor(salary$JobInvolvement)
-salary$JobLevel = as.factor(salary$JobLevel)
-salary$JobSatisfaction = as.factor(salary$JobSatisfaction)
-salary$PerformanceRating = as.factor(salary$PerformanceRating)
-salary$RelationshipSatisfaction = as.factor(salary$RelationshipSatisfaction)
-salary$StockOptionLevel = as.factor(salary$StockOptionLevel)
-salary$WorkLifeBalance = as.factor(salary$WorkLifeBalance)
-```
-
-```{r}
-attrition = subset(attrition, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
-attrition$Education = as.factor(attrition$Education)
-attrition$EnvironmentSatisfaction = as.factor(attrition$EnvironmentSatisfaction)
-attrition$JobInvolvement = as.factor(attrition$JobInvolvement)
-attrition$JobLevel = as.factor(attrition$JobLevel)
-attrition$JobSatisfaction = as.factor(attrition$JobSatisfaction)
-attrition$PerformanceRating = as.factor(attrition$PerformanceRating)
-attrition$RelationshipSatisfaction = as.factor(attrition$RelationshipSatisfaction)
-attrition$StockOptionLevel = as.factor(attrition$StockOptionLevel)
-attrition$WorkLifeBalance = as.factor(attrition$WorkLifeBalance)
 ```
 
 # Attrition vs Education
@@ -454,6 +429,13 @@ mean(masterSens)
 mean(masterSpec)
 
 ```
+```{r}
+attrition = subset(attrition, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
+attrition$EnvironmentSatisfaction = as.factor(attrition$EnvironmentSatisfaction)
+attrition$JobInvolvement = as.factor(attrition$JobInvolvement)
+attrition$JobLevel = as.factor(attrition$JobLevel)
+attrition$WorkLifeBalance = as.factor(attrition$WorkLifeBalance)
+```
 
 #Final
 # Bayes Model with Job Involvement, Work Life Balance, Over Time, Job Role
@@ -561,14 +543,15 @@ MSPE = mean((test$MonthlyIncome - preds)^2)
 sqrt(MSPE)
 
 
-
-iteartions = 20
+# testing models with different seeds
+iteartions = 100
 splitPerc = 0.7
-numks = 10
-set.seed(7)
+numks = 50
 
 masterRMSE = matrix(nrow = iterations, ncol = numks)
-
+masterRMSE2 = matrix(nrow = iterations, ncol = numks)
+masterRMSE3 = matrix(nrow = iterations, ncol = numks)
+masterRMSE4 = matrix(nrow = iterations, ncol = numks)
 
 for(j in 1:iterations)
 {
@@ -579,17 +562,53 @@ for(j in 1:iterations)
   
   for(i in 1:numks)
   {
-    fit4 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel + Age, data = train)
-    preds = predict(fit4, newdata = test)
+    #model 1
+    fit = lm(MonthlyIncome ~ TotalWorkingYears, data = train)
+    preds = predict(fit, newdata = test)
     MSPE = mean((test$MonthlyIncome - preds)^2)
     masterRMSE[j,i] = sqrt(MSPE)
+    
+    #model 2
+    fit2 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany, data = train)
+    preds2 = predict(fit2, newdata = test)
+    MSPE2 = mean((test$MonthlyIncome - preds2)^2)
+    masterRMSE2[j,i] = sqrt(MSPE2)
+    
+    #model 3
+    fit3 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel, data = train)
+    preds3 = predict(fit3, newdata = test)
+    MSPE3 = mean((test$MonthlyIncome - preds3)^2)
+    masterRMSE3[j,i] = sqrt(MSPE3)
+    
+    #model 4
+    fit4 = lm(MonthlyIncome ~ TotalWorkingYears + YearsAtCompany + JobRole + JobLevel + Age, data = train)
+    preds4 = predict(fit4, newdata = test)
+    MSPE4 = mean((test$MonthlyIncome - preds4)^2)
+    masterRMSE4[j,i] = sqrt(MSPE4)
   }
 }
 
 masterRMSE
 mean(masterRMSE)
+#2878.695
+
+masterRMSE2
+mean(masterRMSE2)
+#2887.675
+
+masterRMSE3
+mean(masterRMSE3)
+#1016.014
+
+masterRMSE4
+mean(masterRMSE4)
 #1017.168
 
+```
+
+```{r}
+salary = subset(salary, select = -c(EmployeeCount, EmployeeNumber, Over18, StandardHours))
+salary$JobLevel = as.factor(salary$JobLevel)
 ```
 
 # Predicted Salaries
