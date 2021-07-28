@@ -138,8 +138,12 @@ homedistance %>% spread(Attrition, n) %>% mutate(sum = Yes + No) %>% mutate(perc
 # Attrition vs Age
 ```{r}
 age = data %>% count(Age, Attrition)
-age %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>%
-  ggplot(aes(Age,percent)) + geom_point() + geom_smooth()
+age %>% ggplot(aes(x=Age, y=Attrition, fill = Attrition)) + geom_point()
+
+age %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>% ggplot(aes(Age,percent)) + geom_point() + geom_smooth()
+
+age$logage = log(age$Age)
+age %>% spread(Attrition, n) %>% mutate(sum = Yes+No) %>% mutate(percent = Yes/sum * 100) %>% ggplot(aes(logage,percent)) + geom_point() + geom_smooth()
 ```
 
 # Monthly Income vs Age with Attrition == "Yes"
@@ -325,7 +329,7 @@ trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
 train = data[trainIndices,]
 test = data[-trainIndices,]
 model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition)
 CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
                            predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])))
 CM
@@ -335,7 +339,7 @@ trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
 train = data[trainIndices,]
 test = data[-trainIndices,]
 model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition)
 CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
                            predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime")])))
 CM
@@ -344,7 +348,7 @@ trainIndices = sample(seq(1:length(data$ID)), round(.7 * length(data$ID)))
 train = data[trainIndices,]
 test = data[-trainIndices,]
 model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","Age")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition)
 CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
                            predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","Age")])))
 CM
@@ -375,7 +379,7 @@ for(j in 1:iterations)
   for(i in 1:numks)
   {
     model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition)
     CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
                                predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])))
     masterAcc[j,i] = CM$overall[1]
@@ -414,7 +418,7 @@ for(j in 1:iterations)
   for(i in 1:numks)
   {
     model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition)
     CM = confusionMatrix(table(factor(test$Attrition,labels = c("No","Yes")),
                                predict(model,test[,c("JobInvolvement","WorkLifeBalance","OverTime")])))
     masterAcc[j,i] = CM$overall[1]
@@ -444,7 +448,7 @@ attrition$WorkLifeBalance = as.factor(attrition$WorkLifeBalance)
 ## Specificity : 69.0%
 ```{r}
 model = naiveBayes(train[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")],
-                   factor(train$Attrition,labels = c("No","Yes")))
+                   train$Attrition,labels = c("No","Yes"))
 attrition$Attrition = predict(model,attrition[,c("JobInvolvement","WorkLifeBalance","OverTime","JobRole")])
 output = attrition %>% select(ID, Attrition)
 write.csv(output, file="Case2PredictionsKim Attrition.csv",row.names = FALSE)
