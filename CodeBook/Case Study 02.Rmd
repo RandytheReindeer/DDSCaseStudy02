@@ -612,6 +612,12 @@ mean(masterRMSE4)
 #p-value <2.2e-16
 #adjusted R-square 0.9504
 
+
+#AIC and BIC
+fit5 = lm(MonthlyIncome ~. , data = train)
+testing = step(fit5, direction = "both")
+testing2 = step(fit5, k=2)
+testing3 = step(fit5, k=nrow(log(train)))
 ```
 
 ```{r}
