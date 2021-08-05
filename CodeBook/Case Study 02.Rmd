@@ -603,10 +603,14 @@ mean(masterRMSE2)
 masterRMSE3
 mean(masterRMSE3)
 #1016.014
+#p-value <2.2e-16
+#adjusted R-square 0.9505
 
 masterRMSE4
 mean(masterRMSE4)
 #1017.168
+#p-value <2.2e-16
+#adjusted R-square 0.9504
 
 ```
 
