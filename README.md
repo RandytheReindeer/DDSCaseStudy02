@@ -4,7 +4,7 @@
 - Randy Kim       randyk@mail.smu.edu
 
 ## Introduction
-
+The analysis will review our findings of tops factors of attrition and furthur exploratory data analsysis. Also, the prediction models for both attrition and salary.
 
 ## Structure of Repository
 ### Data Source
@@ -22,5 +22,4 @@
 
 ### Power Point
 * [Case Study 02 Power Point]()
-
-## Conclusion
+Includes the link for the presentation.
