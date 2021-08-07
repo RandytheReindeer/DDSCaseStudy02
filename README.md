@@ -21,5 +21,5 @@ The analysis will review our findings of tops factors of attrition and furthur e
 * [Case2PredictionsKim Attrition.csv](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/Predictions/Case2PredictionsKim%20Attrition.csv) - Final Prediction for Attrition
 
 ### Power Point
-* [Case Study 02 Power Point]()
+* [Case Study 02 Power Point](https://github.com/RandytheReindeer/DDSCaseStudy02/blob/main/DDS%20Case%20Study%2002%20-%20Randy%20Kim.pptx)
 Includes the link for the presentation.
