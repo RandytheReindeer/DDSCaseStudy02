@@ -1,7 +1,7 @@
 # DDSCaseStudy02
 
 ## Contributors: 
-- Randy Kim       randyk@mail.smu.edu
+- Randy Kim       randygkim@gmail.com
 
 ## Introduction
 The analysis will review our findings of tops factors of attrition and furthur exploratory data analsysis. Also, the prediction models for both attrition and salary.
